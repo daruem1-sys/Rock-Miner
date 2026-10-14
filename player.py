@@ -10,7 +10,7 @@ from shot import Shot
 from constants import SHOT_RADIUS
 from constants import PLAYER_SHOOT_SPEED
 from constants import PLAYER_SHOOT_COOLDOWN_TIMER
-import pygame
+import pygame # type: ignore import of the game modual
 
 class Player(CircleShape):
 	def __init__(self, x, y):
