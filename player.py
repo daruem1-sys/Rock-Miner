@@ -17,7 +17,20 @@ class Player(CircleShape):
 		super().__init__(x, y, PLAYER_RADIUS)
 		pygame.font.init()
 		self.rotation = 0
-		self.sprite = pygame.image.load("assets/ship_idle.png").convert_alpha()
+		self.idle_frames = [
+			pygame.image.load("assets/ship_idle.png").convert_alpha()
+		]
+		self.thrust_frames = [
+			pygame.image.load("assets/ship_thurst1.png").convert_alpha(),
+			pygame.image.load("assets/ship_thrust2.png").convert_alpha(),
+			pygame.image.load("assets/ship_thrust3.png").convert_alpha()
+		]
+		self.current_frames = self.idle_frames
+		self.frame_index = 0
+		self.animation_speed = 8
+		self.image = self.current_frames[0]
+		self.new_frames = self.idle_frames
+		self.rect = self.image.get_rect(center=(x, y))
 		self.velocity = pygame.Vector2(0, 0)
 		self.gun_ammo = 100
 		self.missle_ammo = 0
@@ -34,7 +47,7 @@ class Player(CircleShape):
 
 	def draw(self, screen):
 		# pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
-		rotated_sprite = pygame.transform.rotate(self.sprite, -self.rotation)
+		rotated_sprite = pygame.transform.rotate(self.image, -self.rotation)
 		rect = rotated_sprite.get_rect(center=self.position)
 		screen.blit(rotated_sprite, rect)
 		#Text below this line
@@ -53,6 +66,9 @@ class Player(CircleShape):
 			self.rotate(dt)
 		if keys[pygame.K_w]:
 			self.move(dt)
+			self.new_frames = self.thrust_frames
+		else:
+			self.new_frames = self.idle_frames
 		if keys[pygame.K_s]:
 			self.reverse(dt)
 		if keys[pygame.K_x]:
@@ -69,6 +85,13 @@ class Player(CircleShape):
 		self.position.y %= SCREEN_HEIGHT
 		self.position.x %= SCREEN_WIDTH
 		self.position += self.velocity * dt
+		if self.new_frames != self.current_frames:
+			self.current_frames = self.new_frames
+		self.frame_index += self.animation_speed * dt
+		if self.frame_index >= len(self.current_frames):
+			self.frame_index = 0
+		
+		self.image = self.current_frames[int(self.frame_index)]
 
 	def move(self, dt):
 		unit_vector = -pygame.Vector2(0, 1)
@@ -87,10 +110,13 @@ class Player(CircleShape):
 			new_speed = max(0, speed - BREAKING * dt)
 			self.velocity.scale_to_length(new_speed)
 
-	def shoot(self):
+	def shoot(self):	
 		shot = Shot(self.position.x, self.position.y)
 		shot_vector = pygame.Vector2(0, -1)
 		rotated_vector = shot_vector.rotate(self.rotation)
 		shot.velocity = rotated_vector * PLAYER_SHOOT_SPEED
+		shot_sound = pygame.mixer.Sound("assets/shot.wav")
+		shot_sound.set_volume(0.5)
+		shot_sound.play()
 
 

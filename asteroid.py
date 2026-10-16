@@ -29,10 +29,16 @@ class Asteroid(CircleShape):
 
 	def split(self):
 		self.kill()
+		explosion_sound = pygame.mixer.Sound("assets/explosion.wav")
+		explosion_sound.set_volume(0.5)
+		explosion_sound.play()
+		ammo_drop_sound = pygame.mixer.Sound("assets/ammo_drop.wav")
+		ammo_drop_sound.set_volume(0.5)
 		if self.radius <= ASTEROID_MIN_RADIUS:
 			random_ammo = random.randint(1, 10)
 			if random_ammo == 1:  # 10% chance to drop ammo
 				log_event("ammo_drop")
+				ammo_drop_sound.play()
 				new_ammo = Ammo(self.position.x, self.position.y)
 				new_ammo.velocity = self.velocity.rotate(random.uniform(20, 50)) * 0.75
 				return

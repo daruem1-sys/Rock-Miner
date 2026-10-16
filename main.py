@@ -15,6 +15,7 @@ def main():
 	print(f"Screen width: {SCREEN_WIDTH}")
 	print(f"Screen height: {SCREEN_HEIGHT}")
 	pygame.init()
+	pygame.mixer.init()
 	screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 	clock = pygame.time.Clock()
 	dt = 0.0
@@ -46,6 +47,9 @@ def main():
 		for ammoo in ammo:
 			if ammoo.collides_with(player):
 				log_event("ammo_pickup")
+				ammo_pickup_sound = pygame.mixer.Sound("assets/ammo_pickup.wav")
+				ammo_pickup_sound.set_volume(0.5)
+				ammo_pickup_sound.play()
 				player.gun_ammo += 100
 				ammoo.kill()
 		screen.fill("black")
